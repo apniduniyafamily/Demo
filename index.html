@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Apni Duniya</title>
+</head>
+
+<body style="font-family:Arial;text-align:center;padding-top:60px">
+  
+  <h2>Apni Duniya</h2>
+  <p>Notification allow karo</p>
+  
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-app.js";
+    import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-firestore.js";
+    import { getMessaging, getToken } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-messaging.js";
+    
+    const firebaseConfig = {
+      apiKey: "AIzaSyAHAQjn4sTuR9FiGF3ljRrFEMZQjsx-SHg",
+      authDomain: "apni-duniya-b53d7.firebaseapp.com",
+      projectId: "apni-duniya-b53d7",
+      storageBucket: "apni-duniya-b53d7.firebasestorage.app",
+      messagingSenderId: "178853058918",
+      appId: "1:178853058918:web:91dfaa5c5e41446da290a7"
+    };
+    
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+    const messaging = getMessaging(app);
+    
+    // register service worker
+    if ("serviceWorker" in navigator) {
+      await navigator.serviceWorker.register("./firebase-messaging-sw.js");
+    }
+    
+    // ask permission
+    Notification.requestPermission().then(async perm => {
+      
+      if (perm === "granted") {
+        
+        const token = await getToken(messaging, {
+          vapidKey: "BHZmf91HYQxrLbSClj3BFW8MNpoSvHL_TtYwWiT6AUpIJKCJIAyBW-QbS6qkH7W-aamRb_Z7aKMTlpKNDWJcDIM"
+        });
+        
+        await addDoc(collection(db, "tokens"), {
+          token: token,
+          time: Date.now()
+        });
+        
+        alert("Device registered successfully");
+        
+      } else {
+        alert("Notification denied");
+      }
+      
+    });
+  </script>
+  
+</body>
+
+</html>
